@@ -2,6 +2,7 @@
 from fastapi import FastAPI
 
 from app.api.intent import router as intent_router
+from app.api.runtime import router as runtime_router
 from app.api.schema_generation import router as schema_generation_router
 from app.api.system_design import router as system_design_router
 from app.api.validation import router as validation_router
@@ -12,6 +13,7 @@ app.include_router(intent_router)
 app.include_router(system_design_router)
 app.include_router(schema_generation_router)
 app.include_router(validation_router)
+app.include_router(runtime_router)
 
 
 @app.get("/health")
