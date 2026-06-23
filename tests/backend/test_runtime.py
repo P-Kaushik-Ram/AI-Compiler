@@ -1,4 +1,6 @@
 """Unit tests for the deterministic RuntimeService orchestrator."""
+import typing
+
 import pytest
 
 from app.services.intent_extraction import IntentExtractionService
@@ -8,6 +10,22 @@ from app.services.system_design import SystemDesignService
 runtime_service = RuntimeService()
 intent_service = IntentExtractionService()
 design_service = SystemDesignService()
+
+
+def test_runtime_service_method_annotations_resolve_cleanly() -> None:
+    """Regression test: every RuntimeService method's type annotations must reference real names.
+
+    This previously failed for `_next_stage_name`, which annotated its return type as
+    `StageName` without importing that name from `app.models.runtime`. Plain module import
+    didn't catch it because annotation evaluation is lazy by default on Python 3.13+ (PEP 649);
+    the bug only surfaced as a hard ImportError-time NameError on earlier interpreters
+    (verified directly against Python 3.12, the closest available stand-in for this project's
+    declared Python 3.11 target). `typing.get_type_hints()` forces eager resolution on any
+    interpreter version, so this test catches a recurrence regardless of which Python runs it.
+    """
+    for name, member in vars(RuntimeService).items():
+        if callable(member) and not name.startswith("__"):
+            typing.get_type_hints(member)
 
 
 def test_run_with_prompt_executes_all_four_stages_and_succeeds() -> None:

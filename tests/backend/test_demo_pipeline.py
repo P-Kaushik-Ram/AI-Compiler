@@ -1,28 +1,11 @@
 """Unit tests verifying the developer demo script executes successfully."""
 import pytest
 
-from scripts.demo_pipeline import get_prompt, main, run_pipeline
+from scripts.demo_pipeline import get_prompt, main
 
 
-def test_run_pipeline_returns_complete_ir_and_design_for_valid_prompt() -> None:
-    """run_pipeline should return a complete IntentIR and a complete SystemDesign for a clear prompt."""
-    intent_ir, system_design = run_pipeline("Build a CRM where users can log in and manage contacts.")
-
-    assert intent_ir.status == "complete"
-    assert system_design.status == "complete"
-    assert system_design.source_intent_id == intent_ir.intent_id
-
-
-def test_run_pipeline_handles_empty_prompt_without_raising() -> None:
-    """run_pipeline must not raise on an empty prompt; it should propagate Stage 1's rejection gracefully."""
-    intent_ir, system_design = run_pipeline("")
-
-    assert intent_ir.status == "rejected"
-    assert system_design.status == "rejected"
-
-
-def test_main_with_cli_prompt_prints_all_sections_and_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
-    """main() given a CLI prompt should print all three sections and return exit code 0."""
+def test_main_with_cli_prompt_prints_all_stage_sections_and_exits_zero(capsys: pytest.CaptureFixture[str]) -> None:
+    """main() given a CLI prompt should run the full RuntimeService pipeline and print every section."""
     exit_code = main(["Build a CRM where users can log in and manage contacts."])
 
     captured = capsys.readouterr().out
@@ -30,6 +13,20 @@ def test_main_with_cli_prompt_prints_all_sections_and_exits_zero(capsys: pytest.
     assert "INPUT" in captured
     assert "STAGE 1 - Intent Extraction" in captured
     assert "STAGE 2 - System Design" in captured
+    assert "STAGE 3 - Schema Generation" in captured
+    assert "STAGE 4 - Validation" in captured
+    assert "FINAL COMPILATION RESULT" in captured
+    assert "succeeded" in captured
+
+
+def test_main_handles_empty_prompt_without_raising(capsys: pytest.CaptureFixture[str]) -> None:
+    """An empty prompt must cascade through every stage to a halted-but-well-formed result, not a crash."""
+    exit_code = main([""])
+
+    captured = capsys.readouterr().out
+    assert exit_code == 0
+    assert "FINAL COMPILATION RESULT" in captured
+    assert "halted" in captured
 
 
 def test_main_without_prompt_falls_back_to_interactive_input(
@@ -41,7 +38,7 @@ def test_main_without_prompt_falls_back_to_interactive_input(
     exit_code = main([])
 
     assert exit_code == 0
-    assert "STAGE 2 - System Design" in capsys.readouterr().out
+    assert "STAGE 4 - Validation" in capsys.readouterr().out
 
 
 def test_get_prompt_returns_cli_value_without_calling_input(monkeypatch: pytest.MonkeyPatch) -> None:

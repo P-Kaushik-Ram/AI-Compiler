@@ -14,7 +14,7 @@ from typing import Callable, TypeVar
 
 from app.models.data_schema import DataSchema
 from app.models.intent import IntentIR
-from app.models.runtime import CompilationResult, StageSummary
+from app.models.runtime import CompilationResult, StageName, StageSummary
 from app.models.system_design import SystemDesign
 from app.models.validation import ValidationReport
 from app.services.intent_extraction import IntentExtractionService
