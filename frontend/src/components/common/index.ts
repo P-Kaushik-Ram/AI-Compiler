@@ -5,3 +5,4 @@ export type { StatusKind } from "./StatusPill";
 export { EmptyState } from "./EmptyState";
 export { ErrorBanner } from "./ErrorBanner";
 export { Loading } from "./Loading";
+export { Skeleton } from "./Skeleton";

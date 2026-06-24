@@ -21,7 +21,7 @@ describe("AppRoutes", () => {
 
   it("renders the Compile page at /", () => {
     renderAt("/");
-    expect(screen.getByText("Compile workspace")).toBeInTheDocument();
+    expect(screen.getByText("Compile a system from a prompt")).toBeInTheDocument();
   });
 
   it("renders the Evaluation page at /evaluate", () => {
