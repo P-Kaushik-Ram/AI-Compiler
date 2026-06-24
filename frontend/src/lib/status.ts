@@ -14,7 +14,7 @@ const WARNING_STATUSES = new Set([
   "succeeded_with_warnings",
   "proceed_with_warnings",
 ]);
-const ERROR_STATUSES = new Set(["rejected", "failed", "error", "halted", "halt", "errored"]);
+const ERROR_STATUSES = new Set(["rejected", "failed", "error", "halted", "halt", "errored", "failed_to_load"]);
 const NEUTRAL_STATUSES = new Set(["skipped", "not_reached"]);
 
 export function statusToKind(status: string | null | undefined): StatusKind {
@@ -56,3 +56,13 @@ export function formatDuration(durationMs: number | null | undefined): string {
 export function formatLabel(value: string): string {
   return value.replace(/_/g, " ");
 }
+
+/** The text color a metric value should use when it's tied to a particular StatusKind. */
+export const KIND_TEXT_COLOR: Record<StatusKind, string> = {
+  neutral: "var(--color-text-primary)",
+  success: "var(--color-success)",
+  warning: "var(--color-warning)",
+  error: "var(--color-error)",
+  info: "var(--color-info)",
+  pending: "var(--color-text-secondary)",
+};

@@ -26,7 +26,7 @@ describe("AppRoutes", () => {
 
   it("renders the Evaluation page at /evaluate", () => {
     renderAt("/evaluate");
-    expect(screen.getByText("Evaluation dashboard")).toBeInTheDocument();
+    expect(screen.getByText("Evaluate the compiler against a dataset")).toBeInTheDocument();
   });
 
   it("renders the not-found page for an unknown route", () => {
