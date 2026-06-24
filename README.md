@@ -1,316 +1,185 @@
 # AI Compiler
 
-> A deterministic multi-stage AI System Compiler that transforms natural language requirements into validated system architectures, database schemas, and structured intermediate representations.
+**A deterministic, multi-stage AI System Compiler that transforms natural language into validated system architecture, database schema, and implementation-ready design.**
 
-**Status:** Complete MVP
+Describe what you want to build in plain English. AI Compiler runs it through a deterministic, rule-based pipeline — no LLM calls, no non-determinism — that extracts intent, designs a modular architecture, generates a concrete data schema, and cross-validates every stage against the others before producing a single terminal compilation result.
 
----
+<p>
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white">
+  <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black">
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.5-3178C6?logo=typescript&logoColor=white">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white">
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg">
+</p>
 
-## Overview
+## Table of Contents
 
-AI Compiler is a full-stack software engineering project that demonstrates how natural language system requirements can be transformed into structured software design artifacts through a deterministic compiler pipeline.
-
-Unlike LLM-based approaches, this project uses a rule-driven architecture where every compilation stage is transparent, testable, and reproducible.
-
-The compiler accepts a plain-English system description and executes a sequence of compiler stages:
-
-```
-Natural Language
-       │
-       ▼
-Intent Extraction
-       │
-       ▼
-System Design
-       │
-       ▼
-Schema Generation
-       │
-       ▼
-Validation
-       │
-       ▼
-Compilation Result
-```
-
-A React frontend provides an interactive interface for compiling prompts, visualizing every stage of the pipeline, and benchmarking multiple datasets through a built-in evaluation dashboard.
-
----
+- [Features](#features)
+- [Architecture Overview](#architecture-overview)
+- [Project Structure](#project-structure)
+- [Screenshots](#screenshots)
+- [Installation](#installation)
+- [Running the Backend](#running-the-backend)
+- [Running the Frontend](#running-the-frontend)
+- [Running Tests](#running-tests)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ## Features
 
-### Backend
+- **Multi-stage compilation pipeline** — a single prompt flows through four deterministic stages, each producing a validated, strongly-typed intermediate representation.
+- **Intent Extraction** — parses a natural-language prompt into entities, relationships, actions, user stories, requirements, integrations, and risk flags.
+- **System Design Generation** — decomposes extracted intent into modules, capabilities, workflows, actors, and module dependencies.
+- **Database Schema Generation** — produces concrete entities, fields, relationships, and constraints (e.g. encryption, audit logging) from the system design.
+- **Validation Engine** — cross-checks all three upstream artifacts for traceability, consistency, and risk propagation, then issues a single terminal pipeline decision.
+- **Evaluation Dashboard** — runs benchmark datasets through the full pipeline and reports aggregate success/halt/error rates, per-stage confidence and duration distributions, and finding breakdowns.
+- **Interactive React frontend** — a Compile workspace with live pipeline visualization and tabbed results, plus an Evaluation dashboard for running and inspecting benchmarks.
+- **FastAPI backend** — a typed, fully tested REST API exposing every compiler stage independently as well as the full pipeline.
+- **102 backend tests** (pytest) and **62 frontend tests** (Vitest) passing.
 
-* Deterministic Intent Extraction engine
-* System Design generation
-* Database Schema generation
-* Cross-stage Validation Engine
-* Runtime orchestration
-* Streaming Evaluation Framework
-* REST API built with FastAPI
-* Strongly typed Pydantic models
+## Architecture Overview
 
-### Frontend
+AI Compiler is intentionally **deterministic and rule-based** — every stage is implemented as explicit, testable logic rather than an LLM call, so the same prompt always produces the same result.
 
-* Interactive Compile interface
-* Live pipeline visualization
-* Stage-by-stage result viewer
-* Evaluation dashboard
-* TypeScript throughout
-* Zustand state management
-* Responsive dark UI
+```
+Prompt
+  │
+  ▼
+┌──────────────────────┐
+│  Intent Extraction    │  →  IntentIR
+└──────────┬────────────┘
+           ▼
+┌──────────────────────┐
+│  System Design        │  →  SystemDesign
+└──────────┬────────────┘
+           ▼
+┌──────────────────────┐
+│  Schema Generation    │  →  DataSchema
+└──────────┬────────────┘
+           ▼
+┌──────────────────────┐
+│  Validation & Repair  │  →  ValidationReport
+└──────────┬────────────┘
+           ▼
+    CompilationResult
+```
 
-### Quality
+A `RuntimeService` orchestrates the four stages end-to-end, timing each one and assembling their outputs into a single `CompilationResult`. An `EvaluationService` streams batches of prompts through that same runtime and folds the results into one aggregate `BenchmarkResult`, without ever holding more than O(1) memory per dataset.
 
-* 102 backend tests
-* 62 frontend tests
-* 164 automated tests
-* Layered architecture
-* Modular compiler stages
-* Fully typed frontend
+| Stage | Input | Output | Responsibility |
+|---|---|---|---|
+| Intent Extraction | Raw prompt | `IntentIR` | Entities, relationships, actions, requirements, risks, ambiguities |
+| System Design | `IntentIR` | `SystemDesign` | Modules, capabilities, workflows, actors, dependencies |
+| Schema Generation | `IntentIR` + `SystemDesign` | `DataSchema` | Fields, types, relationships, constraints |
+| Validation & Repair | All of the above | `ValidationReport` | Cross-stage consistency checks and the terminal pipeline decision |
 
----
+### API Endpoints
 
-## Compiler Pipeline
-
-### Stage 1 — Intent Extraction
-
-Transforms natural language into a structured Intent IR.
-
-Extracts:
-
-* entities
-* actions
-* relationships
-* risks
-* confidence
-
----
-
-### Stage 2 — System Design
-
-Builds an architectural model from the Intent IR.
-
-Generates:
-
-* modules
-* workflows
-* capabilities
-* actors
-* dependencies
-
----
-
-### Stage 3 — Schema Generation
-
-Produces a normalized database schema.
-
-Generates:
-
-* entities
-* fields
-* primary keys
-* foreign keys
-* relationships
-* constraints
-
----
-
-### Stage 4 — Validation
-
-Performs cross-stage consistency checking.
-
-Detects:
-
-* orphan relationships
-* naming conflicts
-* traceability failures
-* propagated risks
-* schema inconsistencies
-
-Produces one of:
-
-* Proceed
-* Proceed with Warnings
-* Halt
-
----
-
-## Evaluation Framework
-
-The evaluation framework benchmarks the compiler across multiple datasets.
-
-Supports:
-
-* CRM systems
-* Healthcare systems
-* Mixed domain prompts
-* Custom datasets
-
-Reports:
-
-* Success rate
-* Validation rate
-* Confidence statistics
-* Runtime statistics
-* Failure categories
-
----
-
-## Technology Stack
-
-| Layer      | Technology      |
-| ---------- | --------------- |
-| Backend    | Python 3.11     |
-| API        | FastAPI         |
-| Models     | Pydantic v2     |
-| Frontend   | React 18        |
-| Build Tool | Vite            |
-| Language   | TypeScript      |
-| State      | Zustand         |
-| Testing    | pytest + Vitest |
-
----
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/health` | Health check |
+| `POST` | `/intent/extract` | Run Intent Extraction in isolation |
+| `POST` | `/system-design` | Run System Design from an `IntentIR` |
+| `POST` | `/schema-generation` | Run Schema Generation from an `IntentIR` + `SystemDesign` |
+| `POST` | `/validate` | Run Validation across all three upstream artifacts |
+| `POST` | `/compile` | Run the full pipeline for a prompt and return a `CompilationResult` |
+| `POST` | `/evaluate` | Run a batch of dataset cases and return an aggregate `BenchmarkResult` |
 
 ## Project Structure
 
 ```
-backend/
-    app/
-        api/
-        services/
-        models/
-        schemas/
-
-frontend/
-    src/
-        api/
-        components/
-        pages/
-        store/
-        styles/
-        types/
-
-tests/
-    backend/
-    frontend/
-
-docs/
-
-evaluation/
+AI-Compiler/
+├── backend/                 FastAPI application
+│   ├── app/
+│   │   ├── api/             Route handlers for each compiler stage
+│   │   ├── models/          Pydantic IR models (IntentIR, SystemDesign, DataSchema, ...)
+│   │   ├── schemas/         Request payload schemas
+│   │   ├── services/        Deterministic compiler logic for each stage
+│   │   └── main.py          Application entrypoint
+│   └── scripts/             CLI demo for running the pipeline locally
+├── frontend/                React + Vite + TypeScript application
+│   └── src/
+│       ├── api/             Typed fetch layer for the backend API
+│       ├── components/      Compile, Evaluation, and shared UI components
+│       ├── pages/           CompilePage, EvaluationPage
+│       ├── store/           Zustand state stores
+│       └── types/           TypeScript mirrors of the backend models
+├── tests/
+│   ├── backend/             pytest suite (102 tests)
+│   └── frontend/            Vitest + Testing Library suite (62 tests)
+├── docs/                    Architecture and setup documentation
+└── evaluation/              Evaluation framework notes
 ```
-
----
 
 ## Screenshots
 
-### Compile Interface
+| Compile Interface | Pipeline Execution |
+|---|---|
+| ![Compile interface](docs/images/compile-interface.png) | ![Pipeline execution](docs/images/pipeline-execution.png) |
 
-> *Add screenshot here*
+| Results Overview | Full Demo |
+|---|---|
+| ![Results overview](docs/images/results-overview.png) | ![Demo](docs/images/demo.png) |
 
-### Pipeline Visualization
+## Installation
 
-> *Add screenshot here*
+**Prerequisites:**
 
-### Evaluation Dashboard
-
-> *Add screenshot here*
-
----
-
-## Running Locally
-
-### Backend
+- Python 3.11+
+- Node.js 18+ and npm
 
 ```bash
+git clone https://github.com/<your-org>/AI-Compiler.git
+cd AI-Compiler
+```
+
+## Running the Backend
+
+```bash
+python -m venv .venv
+source .venv/bin/activate      # .venv\Scripts\activate on Windows
+
 pip install -r requirements.txt
-
-set PYTHONPATH=backend
-
-python -m uvicorn app.main:app --reload
+uvicorn app.main:app --reload --app-dir backend
 ```
 
-Backend runs at:
+The API will be available at `http://127.0.0.1:8000`, with interactive docs at `http://127.0.0.1:8000/docs`.
 
-```
-http://localhost:8000
-```
-
----
-
-### Frontend
+## Running the Frontend
 
 ```bash
 cd frontend
-
 npm install
-
 npm run dev
 ```
 
-Frontend runs at:
-
-```
-http://localhost:5173
-```
-
----
+The app will be available at `http://localhost:5173` and is preconfigured (via CORS) to talk to the backend at `http://127.0.0.1:8000`.
 
 ## Running Tests
 
-### Backend
-
 ```bash
+# Backend (pytest)
 pytest
-```
 
-### Frontend
-
-```bash
+# Frontend (Vitest)
 cd frontend
-
-npm test -- --run
+npm run test
 ```
 
-Current project status:
+| Suite | Framework | Tests |
+|---|---|---|
+| Backend | pytest | 102 passing |
+| Frontend | Vitest + Testing Library | 62 passing |
 
-* Backend: 102 tests passing
-* Frontend: 62 tests passing
+## Roadmap
 
-Total:
-
-**164 automated tests**
-
----
-
-## Example Prompt
-
-```
-Build a CRM where users can sign up, log in, and manage their own contacts and leads through a sales pipeline.
-```
-
-The compiler produces:
-
-* Intent IR
-* System Design
-* Database Schema
-* Validation Report
-
----
-
-## Future Improvements
-
-* LLM-assisted compiler mode
-* Architecture diagram generation
-* SQL generation
-* Code generation
-* Cloud deployment
-* Docker support
-* Authentication
-* Persistent compile history
-
----
+- [ ] Persistent compilation and evaluation history
+- [ ] Custom dataset import from JSONL files in the Evaluation dashboard
+- [ ] Pluggable extraction backend (swap the deterministic rule engine for an LLM-backed implementation behind the same service interface)
+- [ ] CI pipeline for automated test and build verification
+- [ ] Deployment guide for the backend and frontend
 
 ## License
 
-MIT License
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.
