@@ -11,9 +11,14 @@ from app.api.validation import router as validation_router
 from app.core.config import settings
 
 app = FastAPI(title=settings.PROJECT_NAME, version=settings.VERSION)
+origins = [
+    "http://localhost:5173",
+    "https://ai-compiler-frontend.onrender.com",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
